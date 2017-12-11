@@ -49,7 +49,7 @@
 
 <div style="height:100%;margin-left:10px;margin-right:10px;">
     <div style=" position:relative; margin-bottom:8px; text-align:center;">
-        <h1>CSE 190 Blockly Playground: Project 3</h1>
+        <h1>CSE 190 Blockly Playground: WE LOVE YOU KODY</h1>
     </div>
     <div style="margin-left:50%;width:50%;">
       <img onclick="runCode()" src="images/runButton.png"/>
@@ -62,7 +62,7 @@
     <div style="background-color: #FFFFFF; float: left; width: 49%; height: 800px">
         <div style="height:53%;width:98%;outline-style: solid;outline-width: 1px;text-align:center;margin-left:5px;margin-top:5px;">
             <div style="position:absolute;z-index:4;width:45%;height:37%">
-                <canvas id="catAnimation"></canvas>
+                <canvas id="Animation"></canvas>
             </div>
         </div>
         <hr>
@@ -79,6 +79,18 @@
                         <img src="images/cat3_numbered.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <img src="images/dog1.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
+                    </td>
+                    <td>
+                        <img src="images/dog2.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
+                    </td>
+                    <td>
+                        <img src="images/dog3.png" style="margin-left:5px;margin-top:5px;outline-style: solid;outline-width: 1px;height:180px;" />
+                    </td>
+                </tr>
+                
             </table>
         </div>
     </div>
@@ -97,8 +109,14 @@
         <block type="whenrunclicked"></block>
         <block type="clearscreen"></block>
     </category>
-    <category name="cats" colour="175">
-        <block type="catpose"></block>
+    <category name = "animals" colour="100">
+      <block type="say"></block>
+      <category name="cats" colour="175">
+          <block type="catpose"></block>
+      </category>
+      <category name="dogs" colour="160">
+          <block type="dogpose"></block>
+      </category>
     </category>
 
     <sep></sep>
@@ -139,11 +157,12 @@
     /********************
      * Setup the Canvas *
      ********************/
-    var canvas = document.getElementById("catAnimation");
+    var canvas = document.getElementById("Animation");
     canvas.width = 480;
     canvas.height = 480;
+    
 
-    var ctx = document.getElementById('catAnimation').getContext('2d');
+    var ctx = document.getElementById('Animation').getContext('2d');
 
     var animation = true;
 
@@ -151,31 +170,21 @@
      * Defining a Sprite *
      *********************/
     function sprite (spriteParams) {
-
-        var spriteObj = {};
-
-        spriteObj.context = spriteParams.context;
-        spriteObj.width = spriteParams.width;
-        spriteObj.height = spriteParams.height;
-        spriteObj.image = spriteParams.image;
-        spriteObj.x = spriteParams.x;
-        spriteObj.y = spriteParams.y;
-
-        spriteObj.render = function () {
+        spriteParams.render = function () {
             // Draw the animation
-            spriteObj.context.drawImage(
-                spriteObj.image,
-                canvas.width / 2 - spriteObj.width / 2,
-                canvas.height / 2  - spriteObj.height / 2,
-                spriteObj.width,
-                spriteObj.height,
-                spriteObj.x,
-                spriteObj.y,
-                spriteObj.width,
-                spriteObj.height);
+            spriteParams.context.drawImage(
+                spriteParams.image,
+                canvas.width / 2 - spriteParams.width / 2,
+                canvas.height / 2  - spriteParams.height / 2,
+                spriteParams.width,
+                spriteParams.height,
+                spriteParams.x,
+                spriteParams.y,
+                spriteParams.width,
+                spriteParams.height);
         };
 
-        return spriteObj;
+        return spriteParams;
     }
 
     /**********************
@@ -185,6 +194,8 @@
     catImage.src = "images/cat1.png";
 
     var cat1 = sprite({
+        name: 'cat',
+        pose: 1,
         context: canvas.getContext("2d"),
         width: 500,
         height: 500,
@@ -192,68 +203,151 @@
         x: 0,
         y: 0
     });
-
     /******************
      * Show the cat *
      ******************/
     cat1.render();
 
-    var indexToArrays = 0;
-    var numOfInstructions = 0;
-    var arrayOfPoses = [];
+    /**********************
+     * Defining the dog *
+     **********************/
+    var dogImage = new Image();
+    dogImage.src = "images/dog1.png";
+
+    var dog1 = sprite({
+        name: 'dog',
+        pose: 1,
+        context: canvas.getContext("2d"),
+        width: 500,
+        height: 500,
+        image: dogImage,
+        x: 0,
+        y: 0
+    });
+
+    /******************
+     * Show the dog *
+     ******************/
+    dog1.render();
+
+    /**********************
+     * Defining the text *
+     **********************/
+    var textImage = new Image();
+    textImage.src = "images/text1.png";
+
+    var text1 = sprite({
+        name: 'text',
+        pose: 1,
+        context: canvas.getContext("2d"),
+        width: 500,
+        height: 500,
+        image: textImage,
+        x: 0,
+        y: 0,
+        phrase: ''
+    });
+
+    /******************
+     * Show the text *
+     ******************/
+    text1.render();
+    
+    var sprites = {};
+    sprites[cat1.name] = cat1;
+    sprites[dog1.name] = dog1;
+    sprites[text1.name]= text1;
+    var timers = []; 
 
     /**************************************
      * RUN and STOP buttons on the canvas *
      **************************************/
     function runCode() {
+        if(animation){
+          stopCode();
+        }
         code = Blockly.JavaScript.workspaceToCode(workspace);
         var formattedCode = code.split(";");
-        console.log(formattedCode);
         document.getElementById('codeArea').innerHTML = '';
         document.getElementById('codeArea').innerHTML += 'onRun{<br>';
         for(var i = 0; i < formattedCode.length-1; i++){
-          document.getElementById('codeArea').innerHTML += '&nbsp;'+formattedCode[i]+';';
-          document.getElementById('codeArea').innerHTML += '<br>';
+          if( formattedCode[i] != "await sleep(1000)")
+          {
+             document.getElementById('codeArea').innerHTML += '&nbsp;'+formattedCode[i]+';';
+             document.getElementById('codeArea').innerHTML += '<br>';
+          }
         }
         document.getElementById('codeArea').innerHTML += '}<br>';
         animation = true;
-
-        try {
-            eval(code);
-        } catch (e) {
-            alert(e);
+       
+        try{  
+           var AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+           var run = new AsyncFunction('sprites', code);
+           run(sprites);
+           window.requestAnimationFrame(animate);
+        } catch (e) { 
+           alert(e);
         }
-
-        window.requestAnimationFrame(animate);
+        //animate(formattedCode, 0);
+        
     }
-
-    function updatePose(poseNum){
-        arrayOfPoses.push(poseNum);
-        numOfInstructions++;
+  
+    function sleep(ms){
+       return new Promise(resolve => setTimeout(resolve, ms));
     }
-
-    function animate() {
-        setTimeout(function() {
-            setcatImage(arrayOfPoses[indexToArrays]);
-
-            indexToArrays++;
-
-            if (indexToArrays == numOfInstructions)
-                indexToArrays = 0;
-
-            if (animation) {
-                window.requestAnimationFrame(animate);
-            }
-        }, 1000);
+    
+    function say(phrase){
+        text1.phrase = phrase;
+        ctx.font = "80px Arial";
     }
-
+    function updatePose(poseNum, sprite_name){
+        sprites[sprite_name].pose = poseNum; 
+    }
+    function animate(){
+      timers.push(setTimeout(
+        function (){
+             redrawSpritePoses(sprites);
+             window.requestAnimationFrame(animate);
+        }, 1000)
+      )
+    }
+/*
+    function animate(formattedCode, i) {
+       if( i + 1 >= formattedCode.length  || animation == false)
+       {
+          return;
+       }
+             timer =  setTimeout((formattedCodeLine) =>
+             { console.log("CODE"+formattedCodeLine);
+                   try{  
+                      new Function('sprites', formattedCodeLine)(sprites); 
+                      redrawSpritePoses(sprites);
+                      window.requestAnimationFrame(() => animate(formattedCode, i+1));
+                   } catch (e) { 
+                     alert(e);
+                   }
+             }
+            , 1000, formattedCode[i]);
+            timers.push(timer);
+    }
+*/
     function stopCode() {
         animation = false;
+        resetCanvas();
+        for( var i = 0; i < timers.length; i++){
+           clearTimeout(timers[i]);
+        }
+
     }
 
     function resetCanvas(){
         clearCanvas();
-        setcatImage(1);
+        for(key in sprites){
+           var sprite = sprites[key];
+           sprite.x = 0;
+           sprite.y = 0;
+           sprite.pose = 1;
+        }
     }
 
     /*************************************
@@ -272,14 +366,25 @@
     /*****************************
      * Changing the cat's Pose *
      *****************************/
-    function setcatImage(catIndex){
-        if(!catIndex)
-          catIndex = 1;
+
+    
+    function redrawSpritePoses(sprites){
         clearCanvas();
-        catImage.src = "images/cat"+catIndex+".png";
-        ctx.drawImage(cat1.image, cat1.x, cat1.y);
-        ctx.save();
-        ctx.restore();
+        console.log('redrawSpritePoses: sprites');
+        console.log(sprites);
+        for ( var key in sprites){
+            var sprite = sprites[key]; 
+            if( sprite.name == "text"){
+               ctx.fillText(sprite.phrase, 200,400);
+               ctx.save();
+               ctx.restore();
+            } else {
+               sprite.image.src = "images/"+sprite.name+sprite.pose+".png";
+               ctx.drawImage(sprite.image, sprite.x, sprite.y);
+               ctx.save();
+               ctx.restore();
+            }
+        }
     }
 
     /***********************
